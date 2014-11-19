@@ -1,0 +1,63 @@
+package GameState;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import javax.swing.*;
+import Main.GameScreen;
+
+public class GameStateManager
+{
+  public ArrayList <GameState> gameStates;
+  public int currentState;
+  GameScreen pane;
+  SpringLayout layout;
+  
+  public final int SPLASHSTATE = 0;
+  public final int MENUSTATE = 1;
+  public final int STAGEONESTATE = 2;
+  public final int INPUTSCORESTATE = 3;
+  public final int DIFFICULTYSTATE = 4;
+  
+  public GameStateManager(GameScreen g, SpringLayout s) { 
+    gameStates = new ArrayList<GameState>();
+    this.pane = g;
+    this.layout = s;
+    gameStates.add(new SplashState(this));
+    gameStates.add(new MenuState(this));
+    gameStates.add(new StageOneState(this));
+    gameStates.add(new InputScoreState(this));
+    gameStates.add(new DifficultyState(this));
+    setState(SPLASHSTATE);
+  }
+  
+  public void setState(int state) {
+    pane.removeAll();
+    currentState = state;
+    gameStates.get(currentState).init();
+  }
+
+  public void update() {
+    gameStates.get(currentState).update();
+  }
+  
+  public void draw(java.awt.Graphics2D g) {
+    gameStates.get(currentState).draw(g);
+  }
+  
+  public void paintComponent(Graphics g) {
+    gameStates.get(currentState).paintComponent(g);
+  }
+  
+  
+  public void actionPerformed(ActionEvent ae) {
+  }
+}
+
+
+
+
+
+
+
+
+

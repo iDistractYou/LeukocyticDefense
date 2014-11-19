@@ -1,0 +1,38 @@
+package Gameplay;
+import java.awt.*;
+import GameState.StageOneState;
+public class Block extends Rectangle
+{
+  int groundID;
+  int airID;
+  Tower tower = null;
+  
+  public Block (int x, int y, int width, int height, int groundId, int airId) {
+    setBounds (x, y, width, height);
+    this.groundID = groundID;
+    this.airID = airID;
+  }
+  
+  public void draw(Graphics g) {
+    g.drawRect(x, y, width, height);
+    if (groundID == Value.groundArteryTwo)
+      g.drawImage(StageOneState.tileset_ground[Value.groundArtery], x, y, width, height, null);
+    else
+      g.drawImage(StageOneState.tileset_ground[groundID], x, y, width, height, null);
+    
+    if(tower != null)
+      tower.draw(g);
+  }
+  
+  public void process () {
+    if (tower != null)
+      tower.process();
+    if (airID != Value.airAir && tower == null)
+      tower = new Tower(x, y, width, height, airID);
+  }
+  
+  public void fight(Graphics g) {
+    if (tower != null)
+      tower.fight(g);
+  }
+}

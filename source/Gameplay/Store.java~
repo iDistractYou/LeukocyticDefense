@@ -1,0 +1,126 @@
+package Gameplay;
+import java.awt.*;
+import GameState.StageOneState;
+import javax.swing.*;
+public class Store
+{
+  public Rectangle [] button = new Rectangle [shopSize]; //shop buttons
+  public static int shopSize = 8; //8 different things you can buy 
+  public static int buttonSize = 52;  
+  public static int cellSpace = 2; //space separating between the cells
+  public static int awayFromRoom = 25;
+  public static int iconSize = 20;
+  public static int iconSpace = 6;
+  
+  public static int itemIn = 4;
+  public static int [] buttonID = {Value.airNeutrophil, Value.airEosinophil, Value.airBasophil, Value.airNaturalK, Value.airBCell, Value.airTCell,  Value.airAir, Value.airGarbageBin};
+  public static int heldID = -1;
+  
+  public Rectangle buttonHP, buttonCoins;
+  public Rectangle coins;
+  public Rectangle buttonScore;
+  public boolean holdsItem = false;
+
+  //prices
+  public static int [] buttonPrice = {15, 20, 20, 40, 80, 55, 0, 0};
+  public static int realID = -1;
+  JPanel pane;
+  
+  public Store (JPanel pane)
+  {
+    this.pane = pane;
+    init();
+  }
+  
+  public void click()
+  {
+      for (int i = 0; i < button.length; i++)
+      {
+        if (button[i].contains(StageOneState.mousePoint) && buttonID [i] != Value.airAir)
+        {
+          if (buttonID[i] == Value.airGarbageBin) //delete item
+          {
+            holdsItem = false;
+            //heldID = Value.airAir;            
+          }
+          else
+          {
+            heldID = buttonID[i];
+            realID = i;
+            holdsItem = true;
+          }
+        }
+      }
+      if (holdsItem) //the item must be held by the mouse before clicking to settle down or place the tower!
+      {
+        if (StageOneState.bank >= buttonPrice[realID]) //heldID is the index of the shop item!
+        {
+          for (int y = 0; y < StageOneState.map.block.length; y++)
+          {
+            for (int x = 0; x<StageOneState.map.block[0].length; x++)
+            {
+              if (StageOneState.map.block[y][x].contains(StageOneState.mousePoint))
+              {
+                if (StageOneState.map.block[y][x].groundID != Value.groundArtery && StageOneState.map.block[y][x].groundID != Value.groundArteryTwo && StageOneState.map.block[y][x].airID == Value.airAir)
+                {
+                  StageOneState.map.block[y][x].airID = heldID;
+                  StageOneState.bank -= buttonPrice[realID];
+                }
+              }
+            }
+          }
+        }
+      }
+  }
+  
+  public void init ()
+  {
+    //creates the cells of the shop
+    for (int i = 0; i < button.length; i++)
+      button[i] = new Rectangle(300 + ((buttonSize+cellSpace)*i), (StageOneState.map.block[StageOneState.map.worldHeight-1][0].y) + StageOneState.map.blockSize + awayFromRoom, buttonSize, buttonSize);
+    buttonHP = new Rectangle(StageOneState.map.block[0][0].x-1, button[0].y-11, iconSize, iconSize);
+    buttonCoins = new Rectangle(StageOneState.map.block[0][0].x-1, button[0].y + button[0].height-iconSize-11, iconSize, iconSize);
+    buttonScore = new Rectangle(StageOneState.map.block[0][0].x+735, button[0].y-11, iconSize, iconSize);
+  }
+  
+  public void draw(Graphics g)
+  {
+    for (int i = 0; i<button.length; i++)
+    {
+      //light up store buttons
+      if (button[i].contains(StageOneState.mousePoint)) //if the screen contains the mouse
+      {
+        g.setColor (new Color(255,255,255,150)); //fourth parameter is transparency
+        g.fillRect (button[i].x, button[i].y, button[i].width, button[i].height);
+      }
+      g.drawImage (StageOneState.tileset_res[0], button[i].x, button[i].y, button[i].width, button[i].height, null);
+      if (buttonID[i] != Value.airAir)
+      {
+        g.drawImage (StageOneState.tileset_air[buttonID[i]], button[i].x + itemIn, button[i].y + itemIn, button[i].width - 2*itemIn, button[i].height - 2*itemIn, null);
+      }
+      if (buttonPrice [i] > 0)
+      {
+        g.setColor (Color.WHITE);
+        g.setFont (new Font("Courier New", Font.BOLD, 12));
+        g.drawString("$" + buttonPrice[i], button[i].x + itemIn, button[i].y + itemIn - 11);
+      }
+    }
+    
+    g.drawImage(StageOneState.tileset_res[1],buttonHP.x, buttonHP.y, buttonHP.width, buttonHP.height, null);
+    g.drawImage(StageOneState.tileset_res[2],buttonCoins.x, buttonCoins.y, buttonCoins.width, buttonCoins.height, null);
+    g.setFont(new Font("Courier New", Font.BOLD, 14));
+    g.setColor (Color.BLACK);
+    if (StageOneState.lives < 0)
+    g.drawString ("0", buttonHP.x+buttonHP.width+iconSpace, buttonHP.y + buttonHP.height);
+    else
+      g.drawString ("" + StageOneState.lives, buttonHP.x+buttonHP.width+iconSpace, buttonHP.y + buttonHP.height);
+    g.drawString ("" + StageOneState.bank, buttonCoins.x+buttonCoins.width+iconSpace, buttonCoins.y + buttonCoins.height);
+    g.drawString("Score: " + StageOneState.score, buttonScore.x + buttonHP.width+iconSpace+20, buttonCoins.y + buttonHP.height - 11);
+    g.drawString("" + 1000, 10, 10);
+    
+    if (holdsItem)
+    {
+      g.drawImage(StageOneState.tileset_air[heldID], StageOneState.mousePoint.x - ((button[0].width - 2*itemIn)/2) + itemIn, StageOneState.mousePoint.y - ((button[0].height - 2*itemIn)/2) + itemIn, button[0].width - 2*itemIn, button[0].height - 2*itemIn, null);
+    }
+  }
+}

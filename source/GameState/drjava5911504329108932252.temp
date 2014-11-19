@@ -1,0 +1,343 @@
+package GameState;
+import java.awt.*;
+import java.awt.image.*;
+import javax.imageio.ImageIO;
+import java.awt.event.*;
+import java.io.*;
+import javax.swing.*;
+public class MenuState extends GameState implements ActionListener
+{
+  
+  /** This integer contains the starting distance from the left of the panel for the neutrophil picture.
+    */
+  private int neuDist = 230;
+  /** This integer contains the starting distance from the left of the panel for the eosinophil picture.
+    */
+  private int eosDist = 420;
+  /** This integer contains the starting distance from the left of the panel for the basophil picture.
+    */
+  private int basoDist = 50;
+  /** This integer contains the starting distance from the left of the panel for the natural killer cell picture.
+    */
+  private int nkDist = -155;
+  
+  /** This label holds the picture of the neutrophil.
+    */
+  private JLabel neutrophil = new JLabel();
+  /** This label holds the picture of the eosinophil.
+    */
+  private JLabel eosinophil = new JLabel();  
+  /** This label holds the picture of the basophil.
+    */
+  private JLabel basophil = new JLabel();
+  /** This label holds the picture of the title.
+    */
+  private JLabel title = new JLabel();
+  /** This label holds the picture of the natural killer cell.
+    */
+  private JLabel naturalK = new JLabel();
+  
+  /** This button is the play button, which leads to the choose-difficulty menu.
+    */
+  private JButton play = new JButton();
+  /** This button is the instructions button, which leads to a screen displaying the instructions for the game.
+    */
+  private JButton instructions = new JButton(); 
+  /** This button is the high scores button, which leads to a screen displaying the top 10 scores for the game.
+    */
+  private JButton highScores = new JButton();
+  
+  /* This button is the help button, which leads to the .chm file.
+   */
+  /*
+   private JButton help = new JButton();
+   */
+  /** This button is the quit button, which exits the game.
+    */
+  private JButton quit = new JButton();
+  /** This holds the background for the jpanel.
+    */
+  BufferedImage image;
+  
+  final int MAINMENU = 0;
+  final int DIFFICULTYMENU = 1;
+  final int INSTRUCTIONS = 2;
+  final int HIGHSCORES = 3;
+  
+  int currentState;
+  
+  public MenuState(GameStateManager gsm) 
+  {
+    this.gsm = gsm;
+    currentState = MAINMENU;
+  }
+  
+  public void paintComponent(Graphics g)
+  {
+    Graphics2D g2d = (Graphics2D) g;
+    /*
+     g2d.setColor(Color.ORANGE);
+     g2d.fillRect(0,0,40,40);
+     */
+  }
+  
+  public void init() 
+  {
+    initlabels();
+    setStaticConstraints();
+  }
+  
+  /** Sets the constraints of components that don't move on the JPanel, and adds components in.
+    */
+  public void setStaticConstraints()
+  {
+    gsm.layout.putConstraint(SpringLayout.NORTH, title, 30, SpringLayout.NORTH, gsm.pane);
+    gsm.layout.putConstraint(SpringLayout.WEST, title, 60, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(title);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, play, 230, SpringLayout.SOUTH, title);
+    gsm.layout.putConstraint(SpringLayout.WEST, play, 78, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(play);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, instructions, 0, SpringLayout.SOUTH, play);
+    gsm.layout.putConstraint(SpringLayout.WEST, instructions, 78, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(instructions);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, highScores, 0, SpringLayout.SOUTH, instructions);
+    gsm.layout.putConstraint(SpringLayout.WEST, highScores, 78, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(highScores);
+    
+    /*
+     gsm.layout.putConstraint(SpringLayout.NORTH, help, 0, SpringLayout.SOUTH, highScores);
+     gsm.layout.putConstraint(SpringLayout.WEST, help, 78, SpringLayout.WEST, gsm.pane);
+     gsm.pane.add(help);
+     */
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, quit, 0, SpringLayout.SOUTH, highScores);
+    gsm.layout.putConstraint(SpringLayout.WEST, quit, 78, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(quit);
+  }
+  
+  /** Initializes all the labels and buttons with their pictures.
+    * <p><b>Variable Dictionary: Reference, Type, Purpose</b>
+    * <ul>
+    * <li>titleImg, ImageIcon, holds the title image
+    * <li>neutImg, ImageIcon, holds the neutrophil image
+    * <li>eosImg, ImageIcon, holds the eosinophil image
+    * <li>basoImg, ImageIcon, holds the basophil image
+    * <li>nkImg, ImageIcon, holds the natural killer cell image
+    * <li>playImg, ImageIcon, holds the play button image
+    * <li>playRollImg, ImageIcon, holds the play button rollover image
+    * <li>instImg, ImageIcon, holds the instructions button image
+    * <li>instRollImg, ImageIcon, holds the instructions button rollover image
+    * <li>highScoreImg, ImageIcon, holds the high scores button image
+    * <li>highScoreRollImg, ImageIcon, holds the high scores button rollover image
+    * <li>helpImg, ImageIcon, holds the help button image
+    * <li>helpRollImgImg, ImageIcon, holds the help button rollover image
+    * <li>quitImg, ImageIcon, holds the quit button image
+    * <li>quitRollImg, ImageIcon, holds the quit button rollover image
+    * </ul>
+    */
+  public void initlabels()
+  {
+    ImageIcon titleImg = new ImageIcon();
+    
+    ImageIcon neutImg = new ImageIcon();
+    ImageIcon eosImg = new ImageIcon();
+    ImageIcon basoImg = new ImageIcon();
+    ImageIcon nkImg = new ImageIcon();
+    
+    ImageIcon playImg = new ImageIcon();
+    ImageIcon playRollImg = new ImageIcon();
+    
+    ImageIcon instImg = new ImageIcon();
+    ImageIcon instRollImg = new ImageIcon();
+    
+    ImageIcon highScoreImg = new ImageIcon();
+    ImageIcon highScoreRollImg = new ImageIcon();
+    
+    ImageIcon helpImg = new ImageIcon();
+    ImageIcon helpRollImg = new ImageIcon();
+    
+    ImageIcon quitImg = new ImageIcon();
+    ImageIcon quitRollImg = new ImageIcon();
+    
+    try
+    {
+      titleImg = new ImageIcon(getClass().getResource("/resources/title2.png"));
+      neutImg = new ImageIcon(getClass().getResource("/resources/Neutrophil.png"));
+      eosImg = new ImageIcon(getClass().getResource("/resources/eosinophil.png"));
+      basoImg = new ImageIcon(getClass().getResource("/resources/basophil.png"));
+      nkImg = new ImageIcon(getClass().getResource("/resources/nk.png"));
+      playImg = new ImageIcon(getClass().getResource("/resources/play.png"));
+      playRollImg = new ImageIcon(getClass().getResource("/resources/play2.png"));
+      instImg = new ImageIcon(getClass().getResource("/resources/Instructions.png"));
+      instRollImg = new ImageIcon(getClass().getResource("/resources/Instructions2.png"));
+      highScoreImg = new ImageIcon(getClass().getResource("/resources/High Scores.png"));
+      highScoreRollImg = new ImageIcon(getClass().getResource("/resources/High Scores2.png"));
+      helpImg = new ImageIcon(getClass().getResource("/resources/help.png"));
+      helpRollImg = new ImageIcon(getClass().getResource("/resources/help2.png"));
+      quitImg = new ImageIcon(getClass().getResource("/resources/quit.png"));
+      quitRollImg = new ImageIcon(getClass().getResource("/resources/quit2.png"));
+      
+      title = new JLabel(titleImg);
+      neutrophil = new JLabel(neutImg);
+      eosinophil = new JLabel(eosImg);
+      basophil = new JLabel(basoImg);
+      naturalK = new JLabel(nkImg);
+      
+      play = new JButton(playImg);
+      play.setRolloverIcon(playRollImg);
+      play.setBorderPainted(false);
+      play.setContentAreaFilled(false);
+      play.setActionCommand("Play");
+      play.addActionListener(this);
+      play.setFocusPainted(false);
+      
+      instructions = new JButton(instImg);
+      instructions.setRolloverIcon(instRollImg);
+      instructions.setBorderPainted(false);
+      instructions.setContentAreaFilled(false);
+      instructions.setActionCommand("Instructions");
+      instructions.addActionListener(this);
+      instructions.setFocusPainted(false);
+      
+      highScores = new JButton(highScoreImg);
+      highScores.setRolloverIcon(highScoreRollImg);
+      highScores.setBorderPainted(false);
+      highScores.setContentAreaFilled(false);
+      highScores.setActionCommand("High Scores");
+      highScores.addActionListener(this);
+      highScores.setFocusPainted(false);
+      
+      
+      /*
+       help = new JButton(helpImg);
+       help.setRolloverIcon(helpRollImg);
+       help.setBorderPainted(false);
+       help.setContentAreaFilled(false);
+       help.setFocusPainted(false);
+       */
+      
+      quit = new JButton(quitImg);
+      quit.setRolloverIcon(quitRollImg);
+      quit.setBorderPainted(false);
+      quit.setContentAreaFilled(false);
+      quit.setActionCommand("Quit");
+      quit.addActionListener(this);
+      quit.setFocusPainted(false);
+    }
+    catch (NullPointerException e)
+    {
+      e.printStackTrace();
+    }
+  }
+  
+  /** Removes cell JLabels, updates their constraints, and adds them back in.
+    */
+  public void setConstraints()
+  {
+    gsm.pane.remove(neutrophil);
+    gsm.layout.putConstraint(SpringLayout.NORTH, neutrophil, 150, SpringLayout.NORTH, gsm.pane);
+    gsm.layout.putConstraint(SpringLayout.WEST, neutrophil, neuDist, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(neutrophil);
+    
+    gsm.pane.remove(eosinophil);
+    gsm.layout.putConstraint(SpringLayout.NORTH, eosinophil, 145, SpringLayout.NORTH, gsm.pane);
+    gsm.layout.putConstraint(SpringLayout.WEST, eosinophil, eosDist, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(eosinophil);
+    
+    gsm.pane.remove(basophil);
+    gsm.layout.putConstraint(SpringLayout.NORTH, basophil, 143, SpringLayout.NORTH, gsm.pane);
+    gsm.layout.putConstraint(SpringLayout.WEST, basophil, basoDist, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(basophil);
+    
+    gsm.pane.remove(naturalK);
+    gsm.layout.putConstraint(SpringLayout.NORTH, naturalK, 140, SpringLayout.NORTH, gsm.pane);
+    gsm.layout.putConstraint(SpringLayout.WEST, naturalK, nkDist, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(naturalK);
+  }
+  
+  public void removeMenu()
+  {
+    gsm.pane.remove(play);
+    gsm.pane.remove(instructions);
+    gsm.pane.remove(highScores);
+    gsm.pane.remove(quit);
+  }
+  
+  public void update() 
+  {
+    if (neuDist > 600)
+      neuDist = -160;
+    if (eosDist > 600)
+      eosDist = -160;
+    if (basoDist > 600)
+      basoDist = -160;
+    if (nkDist > 600)
+      nkDist = -160;
+    neuDist+=3;
+    eosDist+=3;
+    basoDist+=3;
+    nkDist+=3;
+    setConstraints();
+    
+  }
+  
+  public void loadScores()
+  {
+    String text;
+    JLabel highScoreOne = new JLabel();
+    JLabel highScoreTwo = new JLabel();
+    JLabel highScoreThree = new JLabel();
+    JLabel highScoreFour = new JLabel();
+    JLabel highScoreFive = new JLabel();
+    
+    try
+    {
+      Scanner read = new Scanner("resources/scores.txt");
+      Font font = Font.createFont(Font.TRUETYPE_FONT, new File("resources/fonts/ARBERKLEY.ttf"));
+      font = font.deriveFont(32f);
+      highScoreOne = new JLabel(read.readInt);
+      highScoreOne.setFont(font);
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+    }
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, highScoreOne, 220, SpringLayout.SOUTH, title);
+    gsm.layout.putConstraint(SpringLayout.WEST, highScoreOne, 50, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(highScoreOne);
+  }
+  
+  public void draw(Graphics2D g) {}
+  public void keyPressed(int k) {}
+  public void keyReleased(int k) {}
+  
+  public void actionPerformed(ActionEvent ae) 
+  {
+    String type = ae.getActionCommand();
+    if (type.equals("Quit"))
+      System.exit(0);
+    else if (type.equals("Play"))
+      gsm.setState(gsm.STAGEONESTATE);
+    else if (type.equals("High Scores"))
+    {
+      removeMenu();
+      loadScores();
+    }
+    else if (type.equals("Back"))
+      gsm.setState(gsm.MENUSTATE);
+  }
+}
+
+
+
+
+
+
+
+
+
+

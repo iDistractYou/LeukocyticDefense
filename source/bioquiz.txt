@@ -1,0 +1,54 @@
+1. White blood cells are formed from stem cells in the bone marrow.
+True
+Post Answer: That is why the currency in the game is in bone marrow points.
+2. Eosinophils are the most abundant type of white blood cell.
+False
+Post Answer: Neutrophils are! They make up 58% of your white blood cell count.
+3. The lifespan of an activated neutrophil in a human is 1-2 days.
+True
+Post Answer: Be sure to replenish your neutrophils!
+4. Neutrophils are usually first white blood cells to attack pathogens.
+True
+Post Answer: That is why they have one of the longest ranges in our game!
+5. The body has more red blood cells than white blood cells.
+False
+Post Answer: This is only true in the bloodstream. There are many non-activated WBCs!
+6. 10% of circulating white blood cells are Basophils. 
+False
+Post Answer: They are very rare--Only 1% of Basophils are circulating in our bloodstream normally!
+7. The maturation stage of Eosinophil white blood cells is 8 hours.
+False
+Post Answer: They require 8 days, not hours!
+8. Eosinophil cells can trap substances.
+True
+Post Answer: Don't estimate their strength in Leukocytic defense!
+9. T Cells participate in immediate allergic reactions.
+False
+Post Answer: This is the role of an eosinophil cell!
+10. Eosinophil cells do not modulate inflammatory responses.
+False
+Post Answer: This is one of eosinophil cells' roles!
+11. Are Eosinophils linked with permanent pathologic diseases.
+True
+Post Answer: Examples are: Loeffler’s disease and idiopathic hypereosinophilic syndrome.
+12. Helper T Cells assist other white blood cells in immunologic processes.
+True
+Post Answer: This is why T Cells in our game increase the surrounding white blood cells' damages.
+13. Asthma is a cause of a spike in the Basophil population
+True
+Post Answer: Basophils also spike up in population due to the immune system at risk too!
+14. Natural Killer Cells are critically important cells to the innate immune system.
+True
+Post Answer: They are expensive but quarantine enemy pathogens very well!
+15. One of the functions of Eosinophils is to target parasites.
+True
+Post Answer: Because of this, Eosinophils quarantine parasites faster in the game!
+16. Natural Killer cells naturally seek out pathogens.
+True
+Post Answer: This is why they have one of the largest damages in the game!
+17. Eosinophils make up around 20% of the white blood cells in your body.
+False
+Post Answer: They only make up around 2%! Very small when compared to Neutrophils.
+18. Once created, all white blood cells enter the bloodstream and start working.
+False
+Post Answer: White blood cells can remain in lymph nodes until called upon or ready to be sent out.

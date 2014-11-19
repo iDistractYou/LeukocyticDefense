@@ -1,0 +1,168 @@
+package GameState;
+import java.awt.*;
+import javax.swing.*;
+import java.awt.event.*;
+import java.util.*;
+import java.io.*;
+
+public class DifficultyState extends GameState implements ActionListener
+{
+  JLabel titleDiff = new JLabel();
+  JLabel statement = new JLabel();
+  JLabel diffSplash = new JLabel();
+  
+  JButton easy = new JButton();
+  JButton medium = new JButton();
+  JButton hard = new JButton();
+  JButton backDiff = new JButton();
+  
+    public DifficultyState(GameStateManager gsm) {
+    this.gsm = gsm;
+  }
+  
+  public void init() {
+    gsm.pane.setSize(400, 400);
+    SwingUtilities.getWindowAncestor(gsm.pane).pack();
+    SwingUtilities.getWindowAncestor(gsm.pane).setLocationRelativeTo(null);
+    initLabels();
+    setStaticConstraints();
+    addComponents();
+  }
+  
+  public void initLabels() {
+    ImageIcon titleImg = new ImageIcon();
+    
+    ImageIcon easyImg = new ImageIcon();
+    ImageIcon easyRollImg = new ImageIcon();
+    ImageIcon mediumImg = new ImageIcon();
+    ImageIcon mediumRollImg = new ImageIcon();
+    ImageIcon hardImg = new ImageIcon();
+    ImageIcon hardRollImg = new ImageIcon();
+    
+    ImageIcon selectImg = new ImageIcon();
+    ImageIcon splash = new ImageIcon();
+    
+    ImageIcon backDiffImg = new ImageIcon();
+    ImageIcon backDiffRollImg = new ImageIcon();    
+    try {
+      titleImg = new ImageIcon(getClass().getResource("/source/resources/title2.png"));
+      easyImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Easy.png"));
+      easyRollImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Easy2.png"));
+      mediumImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Medium.png"));
+      mediumRollImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Medium2.png"));
+      hardImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Hard.png"));
+      hardRollImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Hard2.png"));
+      selectImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Select.png"));
+      backDiffImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Back.png"));
+      backDiffRollImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Back2.png"));
+      splash = new ImageIcon(getClass().getResource("/source/resources/diffsplash.png"));
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    
+    titleDiff = new JLabel(titleImg);
+    diffSplash = new JLabel(splash);
+    
+    easy = new JButton(easyImg);
+    easy.setRolloverIcon(easyRollImg);
+    easy.setBorderPainted(false);
+    easy.setContentAreaFilled(false);
+    easy.setFocusPainted(false);
+    easy.setMnemonic(KeyEvent.VK_A);
+    
+    medium = new JButton(mediumImg);
+    medium.setRolloverIcon(mediumRollImg);
+    medium.setBorderPainted(false);
+    medium.setContentAreaFilled(false);
+    medium.setFocusPainted(false);
+     medium.setMnemonic(KeyEvent.VK_S);
+    
+    hard = new JButton(hardImg);
+    hard.setRolloverIcon(hardRollImg);
+    hard.setBorderPainted(false);
+    hard.setContentAreaFilled(false);
+    hard.setFocusPainted(false);
+    hard.setMnemonic(KeyEvent.VK_D);
+    
+    backDiff = new JButton(backDiffImg);
+    backDiff.setRolloverIcon(backDiffRollImg);
+    backDiff.setBorderPainted(false);
+    backDiff.setContentAreaFilled(false);
+    backDiff.setFocusPainted(false);
+    backDiff.setMnemonic(KeyEvent.VK_B);
+    
+    easy.setActionCommand("Easy");
+    medium.setActionCommand("Medium");
+    hard.setActionCommand("Hard");
+    
+    easy.addActionListener(this);
+    medium.addActionListener(this);
+    hard.addActionListener(this);
+    backDiff.addActionListener(this);
+  }
+  
+  public void setStaticConstraints() {
+    gsm.layout.putConstraint(SpringLayout.NORTH, titleDiff, 30, SpringLayout.NORTH, gsm.pane);
+    gsm.layout.putConstraint(SpringLayout.WEST, titleDiff, 60, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, easy, 210, SpringLayout.SOUTH, titleDiff);
+    gsm.layout.putConstraint(SpringLayout.WEST, easy, 200, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, medium, 5, SpringLayout.SOUTH, easy);
+    gsm.layout.putConstraint(SpringLayout.WEST, medium, 200, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, hard, 5, SpringLayout.SOUTH, medium);
+    gsm.layout.putConstraint(SpringLayout.WEST, hard, 200, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, backDiff, 20, SpringLayout.SOUTH, hard);
+    gsm.layout.putConstraint(SpringLayout.WEST, backDiff, 210, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, diffSplash, 60, SpringLayout.SOUTH, titleDiff);
+    gsm.layout.putConstraint(SpringLayout.WEST, diffSplash, 250, SpringLayout.WEST, gsm.pane);
+  }
+  
+  public void addComponents() {
+    gsm.pane.add(titleDiff);
+    gsm.pane.add(easy);
+    gsm.pane.add(medium);
+    gsm.pane.add(hard);
+    gsm.pane.add(backDiff);
+    gsm.pane.add(diffSplash);
+  }
+  
+  public void update() {
+  }
+  
+  public void draw(Graphics2D g) {
+  }
+  
+  public void paintComponent(Graphics g) {
+  }
+  
+  public void actionPerformed(ActionEvent ae) {
+    if (ae.getActionCommand().equals("Easy"))
+    {
+      StageOneState.difficulty = 1;
+      gsm.pane.stateCheck = true;
+      gsm.pane.state = gsm.STAGEONESTATE;
+    }
+    else if (ae.getActionCommand().equals("Medium"))
+    {
+      StageOneState.difficulty = 2;
+      gsm.pane.stateCheck = true;
+      gsm.pane.state = gsm.STAGEONESTATE;
+    }
+    else if (ae.getActionCommand().equals("Hard"))
+    {
+      StageOneState.difficulty = 3;
+      gsm.pane.stateCheck = true;
+      gsm.pane.state = gsm.STAGEONESTATE;
+    }
+    else
+    {
+      gsm.pane.stateCheck = true;
+      gsm.pane.state = gsm.MENUSTATE;
+    }
+  }
+}

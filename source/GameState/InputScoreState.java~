@@ -1,0 +1,201 @@
+package GameState;
+import java.awt.*;
+import javax.swing.*;
+import java.awt.event.*;
+import java.util.*;
+import java.io.*;
+public class InputScoreState extends GameState implements ActionListener 
+{
+  JLabel titleInput = new JLabel();
+  JLabel gameOver = new JLabel();
+  JLabel yourScoreWas = new JLabel();
+  JLabel scoreLab = new JLabel();
+  JLabel insertName = new JLabel();
+  JButton submit = new JButton();
+  JButton cancel = new JButton();
+  int score;
+  int difficulty;
+  String name = "Anonymous";
+  JTextField nameInput = new JTextField(15);
+  
+  public InputScoreState(GameStateManager gsm) {
+    this.gsm = gsm;
+  }
+  
+  public void init() {
+    gsm.pane.setSize(400, 400);
+    SwingUtilities.getWindowAncestor(gsm.pane).pack();
+    SwingUtilities.getWindowAncestor(gsm.pane).setLocationRelativeTo(null);
+    initLabels();
+    setStaticConstraints();
+    addComponents();
+  }
+  
+  public void initLabels() {
+    Font font = null;
+    Font font2 = null;
+    Font font3 = null;
+    ImageIcon titleImg = new ImageIcon();
+    ImageIcon cancelImg = new ImageIcon();
+    ImageIcon cancelRollImg = new ImageIcon();
+    ImageIcon submitImg = new ImageIcon();
+    ImageIcon submitRollImg = new ImageIcon();
+    
+    try {
+      font = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/source/resources/fonts/ARBERKLEY.ttf"));
+      font2 = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/source/resources/fonts/ARBERKLEY.ttf"));
+      font3 = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/source/resources/fonts/ARBERKLEY.ttf"));
+      titleImg = new ImageIcon(getClass().getResource("/source/resources/title2.png"));
+      cancelImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Cancel.png"));
+      cancelRollImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Cancel2.png"));
+      submitImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Submit.png"));
+      submitRollImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Submit2.png"));
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    
+    font = font.deriveFont(64f);
+    gameOver = new JLabel("Game Over!");  
+    gameOver.setFont(font);
+    
+    font2 = font2.deriveFont(35f);
+    yourScoreWas = new JLabel("Your score was:");
+    yourScoreWas.setFont(font2);
+    
+    font3 = font3.deriveFont(64f);
+    scoreLab = new JLabel("" + score);
+    scoreLab.setFont(font3);
+    
+    titleInput = new JLabel(titleImg);
+    insertName = new JLabel("Enter your name:");
+    cancel = new JButton(cancelImg);
+    cancel.setRolloverIcon(cancelRollImg);
+    cancel.setBorderPainted(false);
+    cancel.setContentAreaFilled(false);
+    cancel.setFocusPainted(false);
+    cancel.setMnemonic(KeyEvent.VK_C);
+    
+    submit = new JButton(submitImg);
+    submit.setRolloverIcon(submitRollImg);
+    submit.setBorderPainted(false);
+    submit.setContentAreaFilled(false);
+    submit.setFocusPainted(false);
+    submit.setMnemonic(KeyEvent.VK_S);
+    
+    cancel.setActionCommand("Cancel");
+    submit.setActionCommand("Submit");
+    cancel.addActionListener(this);
+    submit.addActionListener(this);
+  }
+  
+  public void setStaticConstraints() {
+    gsm.layout.putConstraint(SpringLayout.NORTH, titleInput, 30, SpringLayout.NORTH, gsm.pane);
+    gsm.layout.putConstraint(SpringLayout.WEST, titleInput, 60, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, gameOver, 40, SpringLayout.SOUTH, titleInput);
+    gsm.layout.putConstraint(SpringLayout.WEST, gameOver, 140, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, submit, 400, SpringLayout.SOUTH, titleInput);
+    gsm.layout.putConstraint(SpringLayout.WEST, submit, 90, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, cancel, 400, SpringLayout.SOUTH, titleInput);
+    gsm.layout.putConstraint(SpringLayout.WEST, cancel, 30, SpringLayout.EAST, submit);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, yourScoreWas, 10, SpringLayout.SOUTH, gameOver);
+    gsm.layout.putConstraint(SpringLayout.WEST, yourScoreWas, 190, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, scoreLab, 5, SpringLayout.SOUTH, yourScoreWas);
+    gsm.layout.putConstraint(SpringLayout.WEST, scoreLab, (int)((gsm.pane.getWidth() - scoreLab.getPreferredSize().getWidth())/2), SpringLayout.WEST, gsm.pane);
+
+    gsm.layout.putConstraint(SpringLayout.NORTH, nameInput, 60, SpringLayout.SOUTH, scoreLab);
+    gsm.layout.putConstraint(SpringLayout.WEST, nameInput, 270, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, insertName, 62, SpringLayout.SOUTH, scoreLab);
+    gsm.layout.putConstraint(SpringLayout.WEST, insertName, 155, SpringLayout.WEST, gsm.pane);
+  }
+  
+  public void addComponents() {
+    gsm.pane.add(titleInput);
+    gsm.pane.add(submit);
+    gsm.pane.add(cancel);
+    gsm.pane.add(gameOver);
+    gsm.pane.add(yourScoreWas);
+    gsm.pane.add(scoreLab);
+    gsm.pane.add(nameInput);
+    gsm.pane.add(insertName);
+  }
+    
+  public void setScore(int score) {
+    this.score = score;
+  }
+  
+   public void setDifficulty(int diff) {
+    this.difficulty = diff;
+  }
+  
+  public void paintComponent(Graphics g) {
+  }
+  
+  public void draw(Graphics2D g) {
+  }
+  
+  public void update() {
+  }
+  
+  public void writeToFile() {
+    int[]scores = new int[5];
+    String[]names = new String[5];
+    String[]difficulties = new String[5];
+    String diffString;
+    if (difficulty == 0)
+      diffString = "Easy";
+    else if (difficulty == 1)
+      diffString = "Medium";
+    else
+      diffString = "Hard";
+    
+    try {
+      Scanner scan = new Scanner(new File("scores.txt"));
+      for (int x = 0; x < 5; x++) {
+        names[x] = scan.next();
+        difficulties[x] = scan.next();
+        scores[x] = scan.nextInt();
+      }
+      for (int x = 0; x < 5; x++) {
+        if (scores[x] < score) {
+          for (int y = x; y < 3; y++) {
+            names[x+1] = names[x];
+            difficulties[x+1] = difficulties[x];
+            scores[x+1] = scores[x];
+          }
+          scores[x] = score;
+          difficulties[x] = diffString;
+          names[x] = name;
+          break;
+        }
+      }
+      PrintWriter print = new PrintWriter(new FileWriter("scores.txt"));
+      for (int x = 0; x < 5; x++)
+        print.println(names[x] + " " + difficulties[x] + " " + scores[x]);
+      print.close();
+    }
+    catch(Exception e){
+    }
+  }
+  
+  
+  public void actionPerformed(ActionEvent ae) {
+    if (ae.getActionCommand().equals("Submit")){
+      if (!nameInput.getText().equals(""))
+        name = nameInput.getText();
+      writeToFile();
+      gsm.pane.stateCheck = true;
+      gsm.pane.state = gsm.MENUSTATE;
+    }
+    else {
+      gsm.pane.stateCheck = true;
+      gsm.pane.state = gsm.MENUSTATE;
+    }
+  }
+}

@@ -1,0 +1,314 @@
+package GameState;
+import Gameplay.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.awt.image.*;
+import java.io.*;
+import Gameplay.Map;
+import Main.GameScreen;
+import GameState.MenuState;
+import GameState.InputScoreState;
+import Gameplay.QuizScreen;
+import java.util.*;
+public class StageOneState extends GameState
+{
+      int frameCount = 0;
+  public static boolean isFirst = true;
+  public static int myWidth, myHeight;
+  public static Map map;
+  
+  public static int difficulty;
+  public int mobCount = 0;
+  public static LevelScanner save;
+  public static Point mousePoint = new Point (0, 0); //the x and y, 1:16:00:00
+  public static Store store;
+  
+  public static int bank = 100;
+  public static int lives = 10;
+  public static int score = 0;
+  
+  public static int killed = 0;
+  public static int killsToWin = 75;
+  public static int level;
+  public static int maxLevel = 3;
+  public static boolean isWin = false;
+  
+  public QuizScreen quiz;
+  public static int winTime = 3600, winFrame = 0;
+  
+  public static Image[] tileset_ground = new Image [100];
+  public static Image[] tileset_air = new Image [100];
+  public static Image[] tileset_res = new Image [100];
+  public static Image[] tileset_mob = new Image [100];
+  public Image defeat;
+  public Image success;
+  public Image clear;
+  public static Mob[] mobs = new Mob [120];
+  
+  public static boolean isDebug = false; //debugging mode?
+  
+  public static int spawnTime = 900;
+  int spawnFrame = 0;
+  public JFrame gameFrame;
+  
+  public StageOneState(GameStateManager gsm) {
+    this.gsm = gsm;
+    // SwingUtilities.getWindowAncestor(gsm.pane).addMouseListener (new KeyControl());
+    // SwingUtilities.getWindowAncestor(gsm.pane).addMouseMotionListener (new KeyControl());
+  }
+  
+  public void init() {  
+    gsm.pane.removeAll();
+    gsm.pane.repaint();
+    gameFrame = (JFrame)SwingUtilities.getWindowAncestor(gsm.pane);
+    KeyControl control = new KeyControl(gsm.pane);
+    gameFrame.setVisible(false);
+    gsm.pane.setSize(1100, 710);
+    gameFrame.setSize(1100, 710);
+    //SwingUtilities.getWindowAncestor(gsm.pane).setLayout (new GridLayout(1,1,0,0));
+    gameFrame.setLocationRelativeTo(null);
+    gameFrame.setVisible(true);
+    gameFrame.addMouseListener (control);
+    gameFrame.addMouseMotionListener (control);
+    GameScreen.FPS = 0;
+    winTime = 3600;
+    killed = 0;
+    bank = 100;
+    lives = 10;
+    level = 1;
+    isFirst = true;
+    mobCount = 0;
+    spawnTime = 900;
+    spawnFrame = 0;
+    isWin = false;
+  }
+  
+  public void update() {
+    if (!isFirst && lives > 0 && !isWin) {
+      mobSpawner();
+      map.process();
+      for (int i = 0; i < mobs.length; i++)
+        if (mobs[i].inGame)
+        mobs[i].process();
+    }
+    
+    if (isWin) {
+      if (winFrame >= winTime) {
+        if (level == maxLevel)
+        {
+          inputScore();
+          gsm.setState(gsm.MENUSTATE);
+        }
+        else {
+          store.holdsItem = false;
+          store.heldID = -1;
+          store.realID = -1;
+          isWin = false;
+          level += 1;
+          score += 2*bank + 20*lives;
+          bank = 0;
+          showQuiz();
+        }
+        winFrame = 0;       
+      }
+      else
+        winFrame++;
+    }
+  }
+  
+  public void showQuiz()
+  {
+    int timer = 0;
+    int timerFrameTotal = 1000;
+    int timerFrameCount = 0;
+    gameFrame.setVisible(false);
+    quiz = new QuizScreen();
+    
+    while(!quiz.isDone())
+    {
+      if (timerFrameCount >= timerFrameTotal)
+      {
+        timer++;
+        timerFrameCount = 0;
+      }
+      else
+        timerFrameCount++;
+      try {
+        Thread.sleep(1);
+      }
+      catch(Exception e){
+      }
+    }
+    gameFrame.setVisible(true);
+    mobCount = 0;
+    bank += 150;
+    saveLoad();
+    setMobs();
+  }
+  
+  public void draw(java.awt.Graphics2D g){};
+  public void keyPressed(int k){};
+  public void keyReleased(int k){};
+  
+  public void paintComponent(Graphics g) {
+    
+    if (isFirst) {
+      initial();
+      isFirst = false;
+    }
+    if (isWin)
+    {
+      completeMessage(g);
+      if (frameCount > 3000)
+      {
+        frameCount = 0;
+        inputScore();
+      }
+      else
+        frameCount++;
+    }
+    else if (lives <= 0)
+    {
+      SwingUtilities.getWindowAncestor(gsm.pane).setSize(600, 600);
+      SwingUtilities.getWindowAncestor(gsm.pane).setLocationRelativeTo(null);
+      gsm.pane.setSize(600,600);
+      lostMessage(g);
+      if (frameCount > 3000)
+      {
+        frameCount = 0;
+        inputScore();
+      }
+      else
+        frameCount++;
+      //System.out.println(frameCount);
+    }
+    else {
+      g.setColor (new Color(38, 51, 43));   
+      g.fillRect (0, 0, gsm.pane.getWidth(), gsm.pane.getHeight());
+      g.setColor (Color.BLACK);
+      g.drawLine (map.block[0][0].x-1, 0, map.block[0][0].x-1, map.block[map.worldHeight-1][0].y + map.blockSize); //left line
+      g.drawLine (map.block[0][map.worldWidth-1].x + map.blockSize, 0, map.block[0][map.worldWidth-1].x + map.blockSize, map.block[map.worldHeight-1][0].y + map.blockSize); //right line
+      g.drawLine (map.block[0][0].x, map.block[map.worldHeight-1][0].y + map.blockSize, map.block[0][map.worldWidth-1].x + map.blockSize, map.block[map.worldHeight-1][0].y + map.blockSize); //bottom line
+      map.draw(g);
+      for (int i = 0; i < mobs.length; i++) {
+        if (mobs[i].inGame)
+          mobs[i].draw(g);
+      }
+      store.draw(g);
+    }
+  }
+  
+  public void mobSpawner() {
+    if (spawnFrame >= spawnTime) {
+      if (mobCount < 120) {
+        mobs[mobCount].initMob();
+        mobs[mobCount+1].initMob();
+        mobCount += 2;
+      }
+      spawnFrame = 0;
+    }
+    else
+      spawnFrame++;
+  }
+  
+  
+  public static void hasWon() {
+    if (killed >= killsToWin) {
+      isWin = true;
+      killed = 0;
+    }
+  }
+  
+  public void initial() {
+    map = new Map (gsm.pane);
+    save = new LevelScanner ();
+    store = new Store (gsm.pane);
+    
+    bank += ((level-1)*100);
+    spawnTime = 800;
+    Mob.mobSpeed = (int)(Mob.mobSpeed/2);
+    
+    for (int i = 0; i < tileset_ground.length; i++) {
+      tileset_ground[i] = new ImageIcon (getClass().getResource("/source/resources/tileset_ground.png")).getImage();
+      tileset_ground[i] = gsm.pane.createImage(new FilteredImageSource(tileset_ground[i].getSource(), new CropImageFilter(0, 26*i, 26, 26))); //second last are width and height
+    }
+    for (int i = 0; i < tileset_air.length; i++) {
+      tileset_air[i] = new ImageIcon (getClass().getResource("/source/resources/tileset_air.png")).getImage();
+      tileset_air[i] = gsm.pane.createImage(new FilteredImageSource(tileset_air[i].getSource(), new CropImageFilter(0, 26*i, 26, 26))); //second last are width and height
+    }
+    
+    tileset_res[0] = new ImageIcon (getClass().getResource("/source/resources/cell.png")).getImage();
+    tileset_res[1] = new ImageIcon (getClass().getResource("/source/resources/heart.png")).getImage();
+    tileset_res[2] = new ImageIcon (getClass().getResource("/source/resources/coin.png")).getImage();
+    
+    tileset_mob[0] = new ImageIcon (getClass().getResource("/source/resources/Mob Images/Bacteria.png")).getImage();
+    tileset_mob[2] = new ImageIcon (getClass().getResource("/source/resources/Mob Images/Virus.png")).getImage();
+    tileset_mob[1] = new ImageIcon (getClass().getResource("/source/resources/Mob Images/Parasite.png")).getImage();
+    
+    defeat = new ImageIcon(getClass().getResource("/source/resources/Defeat.png")).getImage();
+    success = new ImageIcon(getClass().getResource("/source/resources/Victory.png")).getImage();
+    clear = new ImageIcon(getClass().getResource("/source/resources/Stage Cleared.png")).getImage();
+    
+    saveLoad();
+    setMobs();
+  }
+  
+  public void saveLoad() {
+    save.loadSave("/source/Gameplay/levels/stage" + level + ".psq");
+  }
+  
+  public void setMobs() {
+    
+    for (int i = 0; i < 20; i+=2) {
+      mobs[i] = new Mob(Value.groundArtery, Value.bacteria);
+      mobs[i+1] = new Mob(Value.groundArteryTwo, Value.bacteria);
+    }
+    for (int i = 20; i < 40; i+=2) {
+      mobs[i] = new Mob(Value.groundArtery, Value.bacteria);
+      mobs[i+1] = new Mob(Value.groundArteryTwo, Value.parasite);
+    }
+    for (int i = 40; i < mobs.length; i+=2) {
+      mobs[i] = new Mob(Value.groundArtery, Value.parasite);
+      mobs[i+1] = new Mob(Value.groundArteryTwo, Value.virus);
+    }
+  }
+  
+  public void completeMessage(Graphics g) {
+    Font font = null;
+    if (level == maxLevel)
+    {
+      SwingUtilities.getWindowAncestor(gsm.pane).setSize(600, 600);
+      SwingUtilities.getWindowAncestor(gsm.pane).setLocationRelativeTo(null);
+      gsm.pane.setSize(600,600);
+      g.drawImage (success, 0, 0, gsm.pane.getWidth(), gsm.pane.getHeight(), null);
+    }
+    else
+    {
+      g.drawImage (clear, 0, 0, gsm.pane.getWidth(), gsm.pane.getHeight(), null);
+      g.setColor(Color.BLACK);
+      try {
+        font = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/source/resources/fonts/ARBERKLEY.ttf"));
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+      }
+      font = font.deriveFont(50f);
+      g.setFont(font);
+      g.drawString("Bonus Bone Marrow: " + (150), 400, 480);
+    }
+    //("You have completed Stage " + level + ". Bonus coins: " + (150) + " Please wait for the next level...", 15, 25);
+  }
+  
+  public void lostMessage(Graphics g) {
+    g.drawImage (defeat, 0, 0, gsm.pane.getWidth(), gsm.pane.getHeight(), null);
+  }
+  
+  public void inputScore() {
+    ((InputScoreState)gsm.gameStates.get(gsm.INPUTSCORESTATE)).setScore(score);
+    ((InputScoreState)gsm.gameStates.get(gsm.INPUTSCORESTATE)).setDifficulty(difficulty);
+    gsm.pane.stateCheck = true;
+    gsm.pane.state = gsm.INPUTSCORESTATE;
+    score = 0;
+  }
+}

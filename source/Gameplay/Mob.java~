@@ -1,0 +1,262 @@
+package Gameplay;
+import java.awt.*;
+import GameState.StageOneState;
+
+public class Mob extends Rectangle
+{
+  public int mobSize = 52;
+  public int mobID;
+  public boolean inGame = false;
+  public int mobWalk = 0; //how long the mob has walked
+  public final int UPWARD = 0;
+  public final int DOWNWARD = 1;
+  public final int RIGHT = 2;
+  public final int LEFT = 3;
+  public int maxHealth = 100;
+  
+  //boolean variables to check if the mob has moved ____ position
+  public boolean hasUpward = false;
+  public boolean hasDownward = false;
+  public boolean hasRight = false;
+  public boolean hasLeft = false;
+  public int direction = RIGHT;
+  public int xCoord;
+  public int yCoord;
+  public int health;
+  public int healthGap = 3;
+  public int moveFrame = 0;
+  public static int mobSpeed;
+  int position;
+  int pathValue;
+  
+  public Mob(int path, int mobid) {
+    this.pathValue = path;
+    this.mobID = mobid;
+    if (mobID == Value.bacteria) {
+      if (StageOneState.difficulty == 1)
+        health = 150;
+      else if (StageOneState.difficulty == 2)
+        health = 300;
+      else
+        health = 390;
+    }
+    else if (mobID == Value.parasite) {
+      if (StageOneState.difficulty == 1)
+        health = 200;
+      else if (StageOneState.difficulty == 2)
+        health = 390;
+      else
+        health = 470;
+    }
+    else {
+      if (StageOneState.difficulty == 1)
+        health = 300;
+      else if (StageOneState.difficulty == 2)
+        health = 400;
+      else
+        health = 530;
+    }
+    if (StageOneState.difficulty == 1)
+      mobSpeed = 20;
+    else if (StageOneState.difficulty == 2)
+      mobSpeed = 15;
+    else
+      mobSpeed = 10;
+    maxHealth = this.health;
+  }
+  
+  public void initMob() {
+    StageOneState.spawnTime = 900; //so after one enemy there won't be a huge spawnTime
+    //StageOneState.spawnTime = 9001 - ((StageOneState.level-1) * 333); //so after one enemy there won't be a huge spawnTime
+    
+    for (int y = 0; y < StageOneState.map.block.length; y++)
+    {
+      if (StageOneState.map.block[y][0].groundID == pathValue)
+      {
+        setBounds(StageOneState.map.block[y][0].x, StageOneState.map.block[y][0].y, mobSize, mobSize);
+        xCoord = 0;
+        yCoord = y;
+        break;
+      }
+    }
+    //setBounds(10,10,100,100); //test to see if mob spawns    
+    inGame = true;
+    //System.out.println(this.health);
+  }
+  
+  public void deleteMob() {
+    inGame = false;
+    direction = RIGHT; //so the next mob won't move weirdly
+    mobWalk = 0;
+  }
+  
+  public void loseHealth() {
+    StageOneState.lives--;
+  }  
+  
+  // method for movement
+  public void process() {
+    if (moveFrame >= mobSpeed) {
+      if (direction == RIGHT)
+      {
+        x++;
+      }
+      else if (direction == UPWARD)
+      {
+        y--;
+      }
+      else if (direction == DOWNWARD)
+      {
+        y++;
+      }
+      else
+      {
+        x--;
+      }
+      
+      mobWalk++;
+      //does another check, _____ coordinate is incremented by one, so it keeps track of the mob's location
+      if (mobWalk == StageOneState.map.blockSize) 
+      {
+        if (direction == RIGHT) {
+          xCoord++;
+          hasRight = true;
+        }
+        else if (direction == UPWARD) {
+          yCoord--;
+          hasUpward = true;
+        }
+        else if (direction == DOWNWARD) {
+          yCoord++;
+          hasDownward = true;
+        }
+        else {
+          if (direction == LEFT) {
+            xCoord--;
+            hasLeft = true;
+          }
+        }
+        
+        //prints out coordinates to double check location
+        //System.out.println(yCoord+ " : " + "[Y], ");
+        
+        //try and catch for each to make sure the mob moves within the specified path
+        
+        if (!hasUpward)
+        {
+          try{
+            if (StageOneState.map.block[yCoord+1][xCoord].groundID == pathValue)
+            {
+              direction = DOWNWARD;
+            }
+          } catch (Exception e) {e.printStackTrace();}
+        }     
+        
+        if (!hasDownward)
+        {
+          try
+          {
+            if (StageOneState.map.block[yCoord-1][xCoord].groundID == pathValue)
+            {
+              direction = UPWARD;
+            }
+          } catch (Exception e) {e.printStackTrace();}
+        } 
+        
+        if (!hasLeft)
+        {
+          try
+          {
+            if (StageOneState.map.block[yCoord][xCoord+1].groundID == pathValue)
+            {
+              direction = RIGHT;
+            }
+          } catch (Exception e) {e.printStackTrace();}
+        }
+        
+        if (!hasRight)
+        {
+          try
+          {
+            if (StageOneState.map.block[yCoord][xCoord-1].groundID == pathValue)
+            {
+              direction = LEFT;
+            }
+          } catch (Exception e) {e.printStackTrace();}
+        }
+        
+        //check if the mob is at the finish
+        if (StageOneState.map.block[yCoord][xCoord].airID == Value.airFinishHeart)
+        {
+          deleteMob();
+          loseHealth();
+        }
+        
+        //reset
+        hasUpward = false;
+        hasDownward = false;
+        hasRight = false;
+        hasLeft = false;
+        mobWalk = 0;
+      }
+      moveFrame = 0;
+    }
+    else
+      moveFrame ++;
+  }
+  
+  public void loseHealth(int amount) {
+    this.health -= amount;
+    checkDeath();
+  }
+  
+  public void checkDeath() {
+    if (health <= 0)
+    {
+      StageOneState.killed++;
+      getMoney(mobID);
+      getScore(mobID);
+      //System.out.println ("" + StageOneState.killed);
+      deleteMob();
+      StageOneState.hasWon();
+    }
+  }
+  
+  public boolean isDead() {
+    if (inGame)
+      return false;
+    return true;
+  }
+  
+  public void getMoney(int mobID) {
+    StageOneState.bank += Value.deathReward[mobID];
+  }
+  
+  public void getScore(int mobID) {
+    if (mobID == Value.bacteria)
+      StageOneState.score += 20;
+    else if (mobID == Value.parasite)
+      StageOneState.score += 30;
+    else
+      StageOneState.score += 50;
+  }
+  
+  public void draw(Graphics g) {
+    double widthDraw = width;
+    double maxHealthDraw = maxHealth;
+    double healthDraw = this.health;
+    g.drawImage(StageOneState.tileset_mob[mobID], x, y, width, height, null);
+    
+    //missing health
+    g.setColor (new Color(233, 14, 15));
+    g.fillRect(x, y-2*healthGap, width, healthGap*2);
+    
+    //health
+    g.setColor (new Color(50, 180, 50));
+    g.fillRect(x, y-2*healthGap, (int)((widthDraw/maxHealthDraw)*healthDraw), healthGap*2);
+    
+    //outline
+    g.setColor (Color.BLACK);
+    g.drawRect(x, y-2*healthGap, width, healthGap*2);
+  }
+}

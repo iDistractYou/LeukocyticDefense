@@ -1,0 +1,724 @@
+package GameState;
+import java.awt.*;
+import java.awt.image.*;
+import java.awt.event.*;
+import java.io.*;
+import javax.swing.*;
+import java.util.*;
+import GameState.Printer;
+
+public class MenuState extends GameState implements ActionListener
+{
+  int myState = 0;
+  int menu = 0;
+  JFrame instructionsFrame = new JFrame("Instructions");
+  JFrame studyFrame = new JFrame("White Blood Cells 101");
+  /** This integer contains the starting distance from the left of the panel for the neutrophil picture.
+    */
+  private int neuDist = 230;
+  /** This integer contains the starting distance from the left of the panel for the eosinophil picture.
+    */
+  private int eosDist = 420;
+  /** This integer contains the starting distance from the left of the panel for the basophil picture.
+    */
+  private int basoDist = 50;
+  /** This integer contains the starting distance from the left of the panel for the natural killer cell picture.
+    */
+  private int nkDist = -155;
+  
+  /** This button allows the user to go back to the main menu.
+    */
+  public JButton back = new JButton("Back");
+  /** This label holds the picture of the neutrophil.
+    */
+  private JLabel neutrophil = new JLabel();
+  /** This label holds the picture of the eosinophil.
+    */
+  private JLabel eosinophil = new JLabel();  
+  /** This label holds the picture of the basophil.
+    */
+  private JLabel basophil = new JLabel();
+  /** This label holds the picture of the title.
+    */
+  private JLabel title = new JLabel();
+  /** This label holds the picture of the natural killer cell.
+    */
+  private JLabel naturalK = new JLabel();
+  
+  /** This button is the play button, which leads to the choose-difficulty menu.
+    */
+  private JButton play = new JButton();
+  /** This button is the instructions button, which leads to a screen displaying the instructions for the game.
+    */
+  private JButton instructions = new JButton(); 
+  /** This button is the high scores button, which leads to a screen displaying the top 10 scores for the game.
+    */
+  private JButton highScores = new JButton();
+  /* printButton JButton reference variable; this is the print button.
+   */
+  public JButton print = new JButton ("Print");
+  /**
+   * p Printer reference variable, gets all the commands that allow printing, which in this program is used for highscore.*/
+  Printer p = new Printer ();  
+  /** highScoreOne - JLabel reference variable, that stores the first high score.
+   */
+  JLabel highScoreOne = new JLabel();
+  /** highScoreTwo - JLabel reference variable, that stores the second high score.
+   */
+  JLabel highScoreTwo = new JLabel();
+  /** highScoreThree - JLabel reference variable, that stores the third high score.
+   */
+  JLabel highScoreThree = new JLabel();
+  /** highScoreFour - JLabel reference variable, that stores the fourth high score.
+   */
+  JLabel highScoreFour = new JLabel();
+  /** highScoreFive - JLabel reference variable, that stores the fifth high score.
+   */
+  JLabel highScoreFive = new JLabel();
+  
+  /** This button is the study button, which displays study material.
+    * */
+  private JButton study = new JButton();
+  /** This button is the quit button, which exits the game.
+    */
+  private JButton quit = new JButton();
+  
+  /** This holds the background for the jpanel.
+    */
+  BufferedImage image;
+  /** This holds the slide panel for the instructions.
+    */
+  int slide = 0;
+  /** This holds the slide panel for the study screen.
+    */
+  int slideStudy = 0;
+  
+  public MenuState(GameStateManager gsm) {
+    this.gsm = gsm;
+    initLabels();
+    setStaticConstraints();
+  }
+  
+  public void paintComponent(Graphics g) {
+  }
+  
+  public void init() {
+    
+    gsm.pane.setSize(600, 600);
+    SwingUtilities.getWindowAncestor(gsm.pane).pack();
+    SwingUtilities.getWindowAncestor(gsm.pane).setLocationRelativeTo(null);
+    gsm.pane.FPS = 20;
+    gsm.pane.removeAll();
+    addMenu();
+  }
+  
+  /** Sets the constraints of components that don't move on the JPanel, and adds components in.
+    */
+  public void setStaticConstraints() {
+    gsm.layout.putConstraint(SpringLayout.NORTH, title, 30, SpringLayout.NORTH, gsm.pane);
+    gsm.layout.putConstraint(SpringLayout.WEST, title, 60, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, play, 200, SpringLayout.SOUTH, title);
+    gsm.layout.putConstraint(SpringLayout.WEST, play, 78, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, instructions, 0, SpringLayout.SOUTH, play);
+    gsm.layout.putConstraint(SpringLayout.WEST, instructions, 78, SpringLayout.WEST, gsm.pane); 
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, study, 0, SpringLayout.SOUTH, instructions);
+    gsm.layout.putConstraint(SpringLayout.WEST, study, 78, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, highScores, 0, SpringLayout.SOUTH, study);
+    gsm.layout.putConstraint(SpringLayout.WEST, highScores, 78, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, quit, 0, SpringLayout.SOUTH, highScores);
+    gsm.layout.putConstraint(SpringLayout.WEST, quit, 78, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, back, 535, SpringLayout.NORTH, gsm.pane);
+    gsm.layout.putConstraint(SpringLayout.WEST, back, 110, SpringLayout.WEST, gsm.pane);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, print, 535, SpringLayout.NORTH, gsm.pane);
+    gsm.layout.putConstraint(SpringLayout.WEST, print, 310, SpringLayout.WEST, gsm.pane);
+  }
+  
+  public void addMenu() {
+    gsm.pane.add(title);
+    gsm.pane.add(play);
+    gsm.pane.add(instructions);
+    gsm.pane.add(study);
+    gsm.pane.add(highScores);
+    gsm.pane.add(quit);
+  }
+  
+  /** Initializes all the labels and buttons with their pictures.
+    * <p><b>Variable Dictionary: Reference, Type, Purpose</b>
+    * <ul>
+    * <li>titleImg, ImageIcon, holds the title image
+    * <li>neutImg, ImageIcon, holds the neutrophil image
+    * <li>eosImg, ImageIcon, holds the eosinophil image
+    * <li>basoImg, ImageIcon, holds the basophil image
+    * <li>nkImg, ImageIcon, holds the natural killer cell image
+    * <li>playImg, ImageIcon, holds the play button image
+    * <li>playRollImg, ImageIcon, holds the play button rollover image
+    * <li>instImg, ImageIcon, holds the instructions button image
+    * <li>instRollImg, ImageIcon, holds the instructions button rollover image
+    * <li>highScoreImg, ImageIcon, holds the high scores button image
+    * <li>highScoreRollImg, ImageIcon, holds the high scores button rollover image
+    * <li>studyImg, ImageIcon, holds the study button image
+    * <li>studyRollImg, ImageIcon, holds the study button rollover image
+    * <li>quitImg, ImageIcon, holds the quit button image
+    * <li>quitRollImg, ImageIcon, holds the quit button rollover image
+    * </ul>
+    */
+  public void initLabels() {
+    ImageIcon titleImg = new ImageIcon();
+    
+    ImageIcon neutImg = new ImageIcon();
+    ImageIcon eosImg = new ImageIcon();
+    ImageIcon basoImg = new ImageIcon();
+    ImageIcon nkImg = new ImageIcon();
+    
+    ImageIcon playImg = new ImageIcon();
+    ImageIcon playRollImg = new ImageIcon();
+    
+    ImageIcon instImg = new ImageIcon();
+    ImageIcon instRollImg = new ImageIcon();
+    
+    ImageIcon highScoreImg = new ImageIcon();
+    ImageIcon highScoreRollImg = new ImageIcon();
+    
+    ImageIcon studyImg = new ImageIcon();
+    ImageIcon studyRollImg = new ImageIcon();
+    
+    ImageIcon quitImg = new ImageIcon();
+    ImageIcon quitRollImg = new ImageIcon();
+    
+    ImageIcon backImg = new ImageIcon();
+    ImageIcon backRollImg = new ImageIcon();
+    
+    ImageIcon printImg = new ImageIcon();
+    ImageIcon printRollImg = new ImageIcon();
+    
+    try {
+      titleImg = new ImageIcon(getClass().getResource("/source/resources/title2.png"));
+      neutImg = new ImageIcon(getClass().getResource("/source/resources/Animation/Neutrophil.png"));
+      eosImg = new ImageIcon(getClass().getResource("/source/resources/Animation/eosinophil.png"));
+      basoImg = new ImageIcon(getClass().getResource("/source/resources/Animation/basophil.png"));
+      nkImg = new ImageIcon(getClass().getResource("/source/resources/Animation/nk.png"));
+      playImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/play.png"));
+      playRollImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/play2.png"));
+      instImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Instructions.png"));
+      instRollImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Instructions2.png"));
+      highScoreImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/High Scores.png"));
+      highScoreRollImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/High Scores2.png"));
+      studyImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/study.png"));
+      studyRollImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/study2.png"));
+      quitImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/quit.png"));
+      quitRollImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/quit2.png"));
+      backImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Back.png"));
+      backRollImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Back2.png"));
+      printImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Print.png"));
+      printRollImg = new ImageIcon(getClass().getResource("/source/resources/Menu Options/Print2.png"));
+    }
+    catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+    
+    title = new JLabel(titleImg);
+    neutrophil = new JLabel(neutImg);
+    eosinophil = new JLabel(eosImg);
+    basophil = new JLabel(basoImg);
+    naturalK = new JLabel(nkImg);
+    
+    play = new JButton(playImg);
+    play.setRolloverIcon(playRollImg);
+    play.setBorderPainted(false);
+    play.setContentAreaFilled(false);
+    play.setFocusPainted(false);
+    play.setMnemonic(KeyEvent.VK_A);
+    
+    instructions = new JButton(instImg);
+    instructions.setRolloverIcon(instRollImg);
+    instructions.setBorderPainted(false);
+    instructions.setContentAreaFilled(false);
+    instructions.setFocusPainted(false);
+    instructions.setMnemonic(KeyEvent.VK_S);
+    
+    highScores = new JButton(highScoreImg);
+    highScores.setRolloverIcon(highScoreRollImg);
+    highScores.setBorderPainted(false);
+    highScores.setContentAreaFilled(false);
+    highScores.setFocusPainted(false);
+    highScores.setMnemonic(KeyEvent.VK_D);
+    
+    study = new JButton(studyImg);
+    study.setRolloverIcon(studyRollImg);
+    study.setBorderPainted(false);
+    study.setContentAreaFilled(false);
+    study.setFocusPainted(false);
+    study.setMnemonic(KeyEvent.VK_W);
+    
+    quit = new JButton(quitImg);
+    quit.setRolloverIcon(quitRollImg);
+    quit.setBorderPainted(false);
+    quit.setContentAreaFilled(false);
+    quit.setFocusPainted(false);
+    quit.setMnemonic(KeyEvent.VK_X);
+    
+    back = new JButton(backImg);
+    back.setFocusPainted(false);
+    back.setRolloverIcon(backRollImg);
+    back.setBorderPainted(false);
+    back.setContentAreaFilled(false);
+    back.setMnemonic(KeyEvent.VK_B);
+    
+    print = new JButton(printImg);
+    print.setFocusPainted(false);
+    print.setRolloverIcon(printRollImg);
+    print.setBorderPainted(false);
+    print.setContentAreaFilled(false);
+    
+    play.setActionCommand("Play");
+    instructions.setActionCommand("Instructions");
+    highScores.setActionCommand("High Scores");
+    quit.setActionCommand("Quit");
+    back.setActionCommand("Back");
+    study.setActionCommand("Study");
+    print.setActionCommand("Print");
+    
+    
+    play.addActionListener(this);
+    instructions.addActionListener(this);
+    highScores.addActionListener(this);
+    study.addActionListener(this);
+    quit.addActionListener(this);
+    back.addActionListener(this);
+    print.addActionListener(this);
+  }
+  
+  /** Removes cell JLabels, updates their constraints, and adds them back in.
+    */
+  public void setConstraints() {
+    gsm.pane.remove(neutrophil);
+    gsm.layout.putConstraint(SpringLayout.NORTH, neutrophil, 150, SpringLayout.NORTH, gsm.pane);
+    gsm.layout.putConstraint(SpringLayout.WEST, neutrophil, neuDist, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(neutrophil);
+    
+    gsm.pane.remove(eosinophil);
+    gsm.layout.putConstraint(SpringLayout.NORTH, eosinophil, 145, SpringLayout.NORTH, gsm.pane);
+    gsm.layout.putConstraint(SpringLayout.WEST, eosinophil, eosDist, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(eosinophil);
+    
+    gsm.pane.remove(basophil);
+    gsm.layout.putConstraint(SpringLayout.NORTH, basophil, 143, SpringLayout.NORTH, gsm.pane);
+    gsm.layout.putConstraint(SpringLayout.WEST, basophil, basoDist, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(basophil);
+    
+    gsm.pane.remove(naturalK);
+    gsm.layout.putConstraint(SpringLayout.NORTH, naturalK, 140, SpringLayout.NORTH, gsm.pane);
+    gsm.layout.putConstraint(SpringLayout.WEST, naturalK, nkDist, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(naturalK);
+    setStaticConstraints();
+  }
+  
+  public void update() {
+    if (myState == menu) {
+      if (neuDist > 600)
+        neuDist = -160;
+      else if (eosDist > 600)
+        eosDist = -160;
+      else if (basoDist > 600)
+        basoDist = -160;
+      else {
+        if(nkDist > 600)
+          nkDist = -160;
+      }
+      neuDist+=3;
+      eosDist+=3;
+      basoDist+=3;
+      nkDist+=3;
+      setConstraints();
+    }
+  }
+  
+  
+  public void removeMenu() {
+    gsm.pane.remove(play);
+    gsm.pane.remove(instructions);
+    gsm.pane.remove(highScores);
+    gsm.pane.remove(study);
+    gsm.pane.remove(quit);
+  }
+  
+  public void removeAnimation() {
+    gsm.pane.remove(naturalK);
+    gsm.pane.remove(basophil);
+    gsm.pane.remove(eosinophil);
+    gsm.pane.remove(neutrophil);
+  }
+  
+  public void removeScores() {
+    gsm.pane.remove(highScoreOne);
+    gsm.pane.remove(highScoreTwo);
+    gsm.pane.remove(highScoreThree);
+    gsm.pane.remove(highScoreFour);
+    gsm.pane.remove(highScoreFive);
+    //gsm.pane.remove(print);
+  }
+  
+  public void addBack() {
+    gsm.pane.add(back);
+  }
+  
+  public void removeBack() {
+    gsm.pane.remove(back);
+  }
+  
+  public void addPrint() 
+  {
+    gsm.pane.add(print);
+  }
+  
+  public void removePrint()
+  {
+    gsm.pane.remove(print);
+  }
+  
+  public void loadScores() {
+    Font font = null;
+    try {
+      Scanner read = new Scanner(new File("scores.txt"));
+      font = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/source/resources/fonts/ARBERKLEY.ttf"));
+      font = font.deriveFont(32f);
+      highScoreOne = new JLabel("1. " + read.next() + " ........ " + read.next() + " ........ " + read.nextInt());
+      highScoreTwo = new JLabel("2. " + read.next() + " ........ " + read.next() + " ........ " + read.nextInt());
+      highScoreThree = new JLabel("3. " + read.next() + " ........ " + read.next() + " ........ " + read.nextInt());
+      highScoreFour = new JLabel("4. " + read.next() + " ........ " + read.next() + " ........ " + read.nextInt());
+      highScoreFive = new JLabel("5. " + read.next() + " ........ " + read.next() + " ........ " + read.nextInt());
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      highScoreOne = new JLabel("<corrupted file>");
+      highScoreTwo = new JLabel("<corrupted file>");
+      highScoreThree = new JLabel("<corrupted file>");
+      highScoreFour = new JLabel("<corrupted file>");
+      highScoreFive = new JLabel("<corrupted file>");
+    }
+    
+    try {
+      highScoreOne.setFont(font);
+      highScoreTwo.setFont(font);
+      highScoreThree.setFont(font);
+      highScoreFour.setFont(font);
+      highScoreFive.setFont(font);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, highScoreOne, 200, SpringLayout.SOUTH, title);
+    gsm.layout.putConstraint(SpringLayout.WEST, highScoreOne, 30, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(highScoreOne);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, highScoreTwo, 0, SpringLayout.SOUTH, highScoreOne);
+    gsm.layout.putConstraint(SpringLayout.WEST, highScoreTwo, 30, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(highScoreTwo);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, highScoreThree, 0, SpringLayout.SOUTH, highScoreTwo);
+    gsm.layout.putConstraint(SpringLayout.WEST, highScoreThree, 30, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(highScoreThree);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, highScoreFour, 0, SpringLayout.SOUTH, highScoreThree);
+    gsm.layout.putConstraint(SpringLayout.WEST, highScoreFour, 30, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(highScoreFour);
+    
+    gsm.layout.putConstraint(SpringLayout.NORTH, highScoreFive, 0, SpringLayout.SOUTH, highScoreFour);
+    gsm.layout.putConstraint(SpringLayout.WEST, highScoreFive, 30, SpringLayout.WEST, gsm.pane);
+    gsm.pane.add(highScoreFive);
+    addBack();
+    addPrint();
+  }
+  
+  public void loadInstructions() {
+    JPanel pane = new JPanel();
+    
+    JButton slide1 = new JButton("Page 1");
+    JButton slide2 = new JButton("Page 2");
+    JButton slide3 = new JButton("Page 3");
+    JButton slide4 = new JButton("Page 4");
+    JButton slide5 = new JButton("Page 5");
+    JButton slide6 = new JButton("Page 6");
+    JButton slide7 = new JButton("Page 7");
+    JButton slideClose = new JButton("Back to Main Menu");
+    
+    JToolBar toolbar = new JToolBar(null, JToolBar.HORIZONTAL);
+    
+    toolbar.add(slide1);
+    toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+    toolbar.add(slide2);
+    toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+    toolbar.add(slide3);
+    toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+    toolbar.add(slide4);
+    toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+    toolbar.add(slide5);
+    toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+    toolbar.add(slide6);
+    toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+    toolbar.add(slide7);
+    toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+    toolbar.add(slideClose);
+    
+    instructionsFrame.add(toolbar, BorderLayout.SOUTH);
+    toolbar.setFloatable(false);
+    toolbar.setRollover(true);
+    
+    slide1.addActionListener(this);
+    slide1.setMnemonic(KeyEvent.VK_1);
+    slide2.addActionListener(this);
+    slide2.setMnemonic(KeyEvent.VK_2);
+    slide3.addActionListener(this);
+    slide3.setMnemonic(KeyEvent.VK_3);
+    slide4.addActionListener(this);
+    slide4.setMnemonic(KeyEvent.VK_4);
+    slide5.addActionListener(this);
+    slide5.setMnemonic(KeyEvent.VK_5);
+    slide6.addActionListener(this);
+    slide6.setMnemonic(KeyEvent.VK_6);
+    slide7.addActionListener(this);
+    slide7.setMnemonic(KeyEvent.VK_7);
+    slideClose.addActionListener(this);
+    slideClose.setMnemonic(KeyEvent.VK_B);
+    
+    SpringLayout s = new SpringLayout();
+    ArrayList<JLabel> instructionLabels = new ArrayList<JLabel>();
+    ArrayList<ImageIcon> instructionImages = new ArrayList<ImageIcon>();
+    try {
+      for (int x = 0; x < 7; x++)
+        instructionImages.add(new ImageIcon(getClass().getResource("/source/resources/Instruction Images/Page " + (x+1) + ".png")));
+      for (ImageIcon i : instructionImages)
+      {
+        instructionLabels.add(new JLabel(i));
+      }
+      
+      pane.setLayout(s);
+      pane.add(instructionLabels.get(slide));
+      s.putConstraint(SpringLayout.NORTH, instructionLabels.get(slide), 0, SpringLayout.NORTH, pane);
+      s.putConstraint(SpringLayout.WEST, instructionLabels.get(slide), 0, SpringLayout.WEST, pane);
+      instructionsFrame.add(pane);
+      instructionsFrame.setVisible(true);
+      instructionsFrame.setSize (600, 600);
+      instructionsFrame.setLocationRelativeTo(null);
+      
+      instructionsFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+        public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+          SwingUtilities.getWindowAncestor(gsm.pane).setVisible(true);
+          removeAnimation();
+          addAnimation();
+          instructionsFrame.setVisible(false);
+          myState = 0;
+        }
+      });
+      
+      SwingUtilities.getWindowAncestor(gsm.pane).setVisible(false);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  
+  public void loadStudy() {
+    JPanel pane = new JPanel();
+    
+    JButton slide1 = new JButton("Study 1");
+    JButton slide2 = new JButton("Study 2");
+    JButton slide3 = new JButton("Study 3");
+    JButton slide4 = new JButton("Study 4");
+    JButton slide5 = new JButton("Study 5");
+    
+    JButton slideClose = new JButton("Back to Main Menu");
+    
+    JToolBar toolbar = new JToolBar(null, JToolBar.HORIZONTAL);
+    
+    toolbar.add(slide1);
+    toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+    toolbar.add(slide2);
+    toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+    toolbar.add(slide3);
+    toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+    toolbar.add(slide4);
+    toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+    toolbar.add(slide5);
+    toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+    toolbar.add(slideClose);
+    
+    studyFrame.add(toolbar, BorderLayout.SOUTH);
+    toolbar.setFloatable(false);
+    toolbar.setRollover(true);
+    
+    slide1.addActionListener(this);
+    slide1.setMnemonic(KeyEvent.VK_1);
+    slide2.addActionListener(this);
+    slide2.setMnemonic(KeyEvent.VK_2);
+    slide3.addActionListener(this);
+    slide3.setMnemonic(KeyEvent.VK_3);
+    slide4.addActionListener(this);
+    slide4.setMnemonic(KeyEvent.VK_4);
+    slide5.addActionListener(this);
+    slide5.setMnemonic(KeyEvent.VK_5);
+    slideClose.addActionListener(this);
+    slideClose.setMnemonic(KeyEvent.VK_B);
+    
+    SpringLayout s = new SpringLayout();
+    ArrayList<JLabel> studyLabels = new ArrayList<JLabel>();
+    ArrayList<ImageIcon> studyImages = new ArrayList<ImageIcon>();
+    try {
+      for (int x = 0; x < 5; x++)
+        studyImages.add(new ImageIcon(getClass().getResource("/source/resources/Study Images/Page " + (x+1) + ".png")));
+      for (ImageIcon i : studyImages)
+      {
+        studyLabels.add(new JLabel(i));
+      }
+      
+      pane.setLayout(s);
+      pane.add(studyLabels.get(slideStudy));
+      s.putConstraint(SpringLayout.NORTH, studyLabels.get(slideStudy), 0, SpringLayout.NORTH, pane);
+      s.putConstraint(SpringLayout.WEST, studyLabels.get(slideStudy), 0, SpringLayout.WEST, pane);
+      studyFrame.add(pane);
+      studyFrame.setVisible(true);
+      studyFrame.setSize (510, 575);
+      studyFrame.setLocationRelativeTo(null);
+      
+      studyFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+        public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+          SwingUtilities.getWindowAncestor(gsm.pane).setVisible(true);
+          removeAnimation();
+          addAnimation();
+          studyFrame.setVisible(false);
+          myState = 0;
+        }
+      });
+      
+      SwingUtilities.getWindowAncestor(gsm.pane).setVisible(false);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  
+  public void addAnimation() {
+    gsm.pane.add(neutrophil);
+    gsm.pane.add(eosinophil);
+    gsm.pane.add(basophil);
+    gsm.pane.add(naturalK);
+  }
+  
+  public void draw(Graphics2D g) {}
+  public void keyPressed(int k) {}
+  public void keyReleased(int k) {}
+  
+  public void actionPerformed(ActionEvent ae) {
+    String type = ae.getActionCommand();
+    
+    if (type.equals("Quit"))
+      System.exit(0);
+    else if (type.equals("Play")) {
+      gsm.pane.stateCheck = true;
+      gsm.pane.state = gsm.DIFFICULTYSTATE;
+    }
+    else if (type.equals("High Scores")) {
+      removeMenu();
+      removeAnimation();
+      loadScores();
+    }
+    else if (type.equals("Instructions")) { 
+      loadInstructions();
+    }
+    else if (type.equals("Study")) {
+      loadStudy();
+    }
+    else if (type.equals("Back")) {
+      removeAnimation();
+      removeBack();
+      removeScores();
+      removePrint();
+      addMenu();
+      addAnimation();
+      myState = 0;
+    }
+    else if (type.equals("Page 1"))
+    { 
+      slide = 0;   
+      loadInstructions();
+    }
+    else if (type.equals("Page 2")) { 
+      slide = 1;   
+      loadInstructions();
+    }
+    else if (type.equals("Page 3")) { 
+      slide = 2;   
+      loadInstructions();
+    }
+    else if (type.equals("Page 4")) { 
+      slide = 3;   
+      loadInstructions();
+    }
+    else if (type.equals("Page 5")) { 
+      slide = 4;   
+      loadInstructions();
+    }
+    else if (type.equals("Page 6")) { 
+      slide = 5;   
+      loadInstructions();
+    }
+    else if (type.equals("Page 7")) { 
+      slide = 6;   
+      loadInstructions();
+    }
+    else if (type.equals("Study 1")) {
+      slideStudy = 0;
+      loadStudy();
+      System.out.println("hi");
+    }
+    else if (type.equals("Study 2")) {
+      slideStudy = 1;
+      loadStudy();
+    }
+    else if (type.equals("Study 3")) {
+      slideStudy = 2;
+      loadStudy();
+    }
+    else if (type.equals("Study 4")) {
+      slideStudy = 3;
+      loadStudy();
+    }
+    else if (type.equals("Study 5")) {
+      slideStudy = 4;
+      loadStudy();
+    }
+    else if (type.equals("Print"))
+    { 
+      p.println ("","High Scores", "");
+      p.println ("","","");
+      try{
+        Scanner readHS = new Scanner (new File("scores.txt"));
+        p.println ("Rank/Player","Difficulty","Score");
+        for (int count = 1; count <= 5; count ++)
+        {
+          p.println (""+count+"."+readHS.next(), "" + readHS.next(), ""+readHS.nextInt()); 
+        }        
+      }
+      catch (InputMismatchException e) //if weird things happen change back to Exception
+      {
+        e.printStackTrace();
+      }
+      catch (FileNotFoundException e) {}
+      p.printUsingDialog(); 
+    }    
+    else {
+      SwingUtilities.getWindowAncestor(gsm.pane).setVisible(true);
+      instructionsFrame.setVisible(false);
+      studyFrame.setVisible(false);
+      myState = 0;
+    }
+  }
+}
